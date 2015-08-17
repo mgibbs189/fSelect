@@ -26,3 +26,11 @@ $('.your-select-box').fSelect({
 * **overflowText** (str) - the text to show after exceeding the `numDisplayed` limit
 * **searchText** (str) - the search box placeholder text
 * **showSearch** (bool) - show the search box?
+
+### Single vs. multi-select
+
+Add the `multiple` attribute to your `<select>` to enable multi-select:
+
+```html
+<select class="your-select-box" multiple="multiple">
+```
