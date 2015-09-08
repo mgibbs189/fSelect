@@ -34,25 +34,25 @@
                 var multiple = this.$select.is('[multiple]') ? ' multiple' : '';
                 this.$select.wrap('<div class="fs-wrap' + multiple + '"></div>');
                 this.$select.before('<div class="fs-label-wrap"><div class="fs-label">' + this.settings.placeholder + '</div><span class="fs-arrow"></span></div>');
-                this.$select.before('<div class="fs-dropdown hidden"></div>');
+                this.$select.before('<div class="fs-dropdown hidden"><div class="fs-options"></div></div>');
                 this.$select.addClass('hidden');
+                this.$wrap = this.$select.closest('.fs-wrap');
                 this.reload();
             },
 
             reload: function() {
-                var choices = '';
                 if (this.settings.showSearch) {
-                    choices += '<div class="fs-search"><input type="search" placeholder="' + this.settings.searchText + '" /></div>';
+                    var search = '<div class="fs-search"><input type="search" placeholder="' + this.settings.searchText + '" /></div>';
+                    this.$wrap.find('.fs-dropdown').prepend(search);
                 }
-                choices += this.buildOptions(this.$select);
-                this.$select.siblings('.fs-dropdown').html(choices);
+                var choices = this.buildOptions(this.$select);
+                this.$wrap.find('.fs-options').html(choices);
                 this.reloadDropdownLabel();
             },
 
             destroy: function() {
-                var $wrap = this.$select.closest('.fs-wrap');
-                $wrap.find('.fs-label-wrap').remove();
-                $wrap.find('.fs-dropdown').remove();
+                this.$wrap.find('.fs-label-wrap').remove();
+                this.$wrap.find('.fs-dropdown').remove();
                 this.$select.unwrap().removeClass('hidden');
             },
 
@@ -79,11 +79,10 @@
             },
 
             reloadDropdownLabel: function() {
-                var $wrap = this.$select.closest('.fs-wrap');
                 var settings = this.settings;
                 var labelText = [];
 
-                $wrap.find('.fs-option.selected').each(function(i, el) {
+                this.$wrap.find('.fs-option.selected').each(function(i, el) {
                     labelText.push($(el).find('.fs-option-label').text());
                 });
 
@@ -97,8 +96,8 @@
                     labelText = labelText.join(', ');
                 }
 
-                $wrap.find('.fs-label').html(labelText);
-                this.$select.trigger('change');
+                this.$wrap.find('.fs-label').html(labelText);
+                this.$select.change();
             }
         }
 
@@ -124,17 +123,42 @@
     /**
      * Events
      */
-    $(document).on('click touchstart', '.fs-label', function() {
-        var $wrap = $(this).closest('.fs-wrap');
-        $wrap.find('.fs-dropdown').toggleClass('hidden');
+    window.fSelect = {
+        'active': null,
+        'idx': -1
+    };
+
+    function setIndexes($wrap) {
+        $wrap.find('.fs-option:not(.hidden)').each(function(i, el) {
+            $(el).attr('data-index', i);
+            $wrap.find('.fs-option').removeClass('hl');
+        });
         $wrap.find('.fs-search input').focus();
-    });
+        window.fSelect.idx = -1;
+    }
 
-    $(document).on('click touchstart', '.fs-option', function() {
-        var $this = this;
+    function setScroll($wrap) {
+        var $container = $wrap.find('.fs-options');
+        var $selected = $wrap.find('.fs-option.hl');
+
+        var itemMin = $selected.offset().top + $container.scrollTop();
+        var itemMax = itemMin + $selected.outerHeight();
+        var containerMin = $container.offset().top + $container.scrollTop();
+        var containerMax = containerMin + $container.outerHeight();
+
+        if (itemMax > containerMax) { // scroll down
+            var to = $container.scrollTop() + itemMax - containerMax;
+            $container.scrollTop(to);
+        }
+        else if (itemMin < containerMin) { // scroll up
+            var to = $container.scrollTop() - containerMin - itemMin;
+            $container.scrollTop(to);
+        }
+    }
+
+    $(document).on('click', '.fs-option', function() {
         var $wrap = $(this).closest('.fs-wrap');
 
-        // Multiple select
         if ($wrap.hasClass('multiple')) {
             var selected = [];
 
@@ -143,7 +167,6 @@
                 selected.push($(el).attr('data-value'));
             });
         }
-        // Single select
         else {
             var selected = $(this).attr('data-value');
             $wrap.find('.fs-option').removeClass('selected');
@@ -155,21 +178,12 @@
         $wrap.find('select').fSelect('reloadDropdownLabel');
     });
 
-    $(document).on('click touchstart', function(e) {
-        var $wrap = $(e.target).closest('.fs-wrap');
-        if ($wrap.length < 1) {
-            $('.fs-dropdown').addClass('hidden');
+    $(document).on('keyup', '.fs-search input', function(e) {
+        if (40 == e.which) {
+            $(this).blur();
+            return;
         }
-        else {
-            var is_hidden = $wrap.find('.fs-dropdown').hasClass('hidden');
-            $('.fs-dropdown').addClass('hidden');
-            if (!is_hidden) {
-                $wrap.find('.fs-dropdown').removeClass('hidden');
-            }
-        }
-    });
 
-    $(document).on('keyup', '.fs-search input', function() {
         var $wrap = $(this).closest('.fs-wrap');
         var keywords = $(this).val();
 
@@ -189,6 +203,75 @@
                     $(this).addClass('hidden');
                 }
             });
+        }
+
+        setIndexes($wrap);
+    });
+
+    $(document).on('click', function(e) {
+        var $el = $(e.target);
+        var $wrap = $el.closest('.fs-wrap');
+
+        if (0 < $wrap.length) {
+            if ($el.hasClass('fs-label')) {
+                window.fSelect.active = $wrap;
+                var is_hidden = $wrap.find('.fs-dropdown').hasClass('hidden');
+                $('.fs-dropdown').addClass('hidden');
+
+                if (is_hidden) {
+                    $wrap.find('.fs-dropdown').removeClass('hidden');
+                }
+                else {
+                    $wrap.find('.fs-dropdown').addClass('hidden');
+                }
+
+                setIndexes($wrap);
+            }
+        }
+        else {
+            $('.fs-dropdown').addClass('hidden');
+            window.fSelect.active = null;
+        }
+    });
+
+    $(document).on('keydown', function(e) {
+        var $wrap = window.fSelect.active;
+
+        if (null === $wrap) {
+            return;
+        }
+        else if (38 == e.which) { // up
+            e.preventDefault();
+
+            $wrap.find('.fs-option').removeClass('hl');
+
+            if (window.fSelect.idx > 0) {
+                window.fSelect.idx--;
+                $wrap.find('.fs-option[data-index=' + window.fSelect.idx + ']').addClass('hl');
+                setScroll($wrap);
+            }
+            else {
+                window.fSelect.idx = -1;
+                $wrap.find('.fs-search input').focus();
+            }
+        }
+        else if (40 == e.which) { // down
+            e.preventDefault();
+
+            var last_index = $wrap.find('.fs-option:last').attr('data-index');
+            if (window.fSelect.idx < parseInt(last_index)) {
+                window.fSelect.idx++;
+                $wrap.find('.fs-option').removeClass('hl');
+                $wrap.find('.fs-option[data-index=' + window.fSelect.idx + ']').addClass('hl');
+                setScroll($wrap);
+            }
+        }
+        else if (32 == e.which || 13 == e.which) { // space, enter
+            $wrap.find('.fs-option.hl').click();
+        }
+        else if (27 == e.which) { // esc
+            $('.fs-dropdown').addClass('hidden');
+            window.fSelect.active = null;
         }
     });
 
