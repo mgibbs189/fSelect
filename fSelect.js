@@ -213,7 +213,7 @@
         var $wrap = $el.closest('.fs-wrap');
 
         if (0 < $wrap.length) {
-            if ($el.hasClass('fs-label')) {
+            if ($el.hasClass('fs-label') || $el.hasClass('fs-arrow')) {
                 window.fSelect.active = $wrap;
                 var is_hidden = $wrap.find('.fs-dropdown').hasClass('hidden');
                 $('.fs-dropdown').addClass('hidden');
