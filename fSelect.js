@@ -31,8 +31,9 @@
          */
         fSelect.prototype = {
             create: function() {
-                var multiple = this.$select.is('[multiple]') ? ' multiple' : '';
-                this.$select.wrap('<div class="fs-wrap' + multiple + '"></div>');
+                this.settings.multiple = this.$select.is('[multiple]');
+                var multiple = this.settings.multiple ? ' multiple' : '';
+                this.$select.wrap('<div class="fs-wrap' + multiple + '" tabindex="0"></div>');
                 this.$select.before('<div class="fs-label-wrap"><div class="fs-label">' + this.settings.placeholder + '</div><span class="fs-arrow"></span></div>');
                 this.$select.before('<div class="fs-dropdown hidden"><div class="fs-options"></div></div>');
                 this.$select.addClass('hidden');
@@ -45,6 +46,7 @@
                     var search = '<div class="fs-search"><input type="search" placeholder="' + this.settings.searchText + '" /></div>';
                     this.$wrap.find('.fs-dropdown').prepend(search);
                 }
+                this.selected = [].concat(this.$select.val()); // force an array
                 var choices = this.buildOptions(this.$select);
                 this.$wrap.find('.fs-options').html(choices);
                 this.reloadDropdownLabel();
@@ -70,8 +72,13 @@
                         choices += '</div>';
                     }
                     else {
-                        var selected = $el.is('[selected]') ? ' selected' : '';
-                        choices += '<div class="fs-option' + selected + '" data-value="' + $el.prop('value') + '"><span class="fs-checkbox"><i></i></span><div class="fs-option-label">' + $el.html() + '</div></div>';
+                        var val = $el.prop('value');
+
+                        // exclude the first option in multi-select mode
+                        if (0 < i || '' != val || ! $this.settings.multiple) {
+                            var selected = -1 < $.inArray(val, $this.selected) ? ' selected' : '';
+                            choices += '<div class="fs-option' + selected + '" data-value="' + val + '"><span class="fs-checkbox"><i></i></span><div class="fs-option-label">' + $el.html() + '</div></div>';
+                        }
                     }
                 });
 
@@ -128,36 +135,9 @@
         'idx': -1
     };
 
-    function setIndexes($wrap) {
-        $wrap.find('.fs-option:not(.hidden)').each(function(i, el) {
-            $(el).attr('data-index', i);
-            $wrap.find('.fs-option').removeClass('hl');
-        });
-        $wrap.find('.fs-search input').focus();
-        window.fSelect.idx = -1;
-    }
-
-    function setScroll($wrap) {
-        var $container = $wrap.find('.fs-options');
-        var $selected = $wrap.find('.fs-option.hl');
-
-        var itemMin = $selected.offset().top + $container.scrollTop();
-        var itemMax = itemMin + $selected.outerHeight();
-        var containerMin = $container.offset().top + $container.scrollTop();
-        var containerMax = containerMin + $container.outerHeight();
-
-        if (itemMax > containerMax) { // scroll down
-            var to = $container.scrollTop() + itemMax - containerMax;
-            $container.scrollTop(to);
-        }
-        else if (itemMin < containerMin) { // scroll up
-            var to = $container.scrollTop() - containerMin - itemMin;
-            $container.scrollTop(to);
-        }
-    }
-
     $(document).on('click', '.fs-option', function() {
         var $wrap = $(this).closest('.fs-wrap');
+        var do_close = false;
 
         if ($wrap.hasClass('multiple')) {
             var selected = [];
@@ -171,15 +151,19 @@
             var selected = $(this).attr('data-value');
             $wrap.find('.fs-option').removeClass('selected');
             $(this).addClass('selected');
-            $wrap.find('.fs-dropdown').hide();
+            do_close = true;
         }
 
         $wrap.find('select').val(selected);
         $wrap.find('select').fSelect('reloadDropdownLabel');
+
+        if (do_close) {
+            closeDropdown($wrap);
+        }
     });
 
     $(document).on('keyup', '.fs-search input', function(e) {
-        if (40 == e.which) {
+        if (40 == e.which) { // down
             $(this).blur();
             return;
         }
@@ -214,33 +198,38 @@
 
         if (0 < $wrap.length) {
             if ($el.hasClass('fs-label')) {
-                window.fSelect.active = $wrap;
                 var is_hidden = $wrap.find('.fs-dropdown').hasClass('hidden');
-                $('.fs-dropdown').addClass('hidden');
 
                 if (is_hidden) {
-                    $wrap.find('.fs-dropdown').removeClass('hidden');
+                    openDropdown($wrap);
                 }
                 else {
-                    $wrap.find('.fs-dropdown').addClass('hidden');
+                    closeDropdown($wrap);
                 }
-
-                setIndexes($wrap);
             }
         }
+        // clicked outside, close all fSelect boxes
         else {
-            $('.fs-dropdown').addClass('hidden');
-            window.fSelect.active = null;
+            closeDropdown(/* null */);
         }
     });
 
     $(document).on('keydown', function(e) {
         var $wrap = window.fSelect.active;
+        var $target = $(e.target);
 
-        if (null === $wrap) {
+        // if space, toggle the dropdown
+        if ($target.hasClass('fs-wrap')) {
+            if (32 == e.which) {
+                $target.find('.fs-label').trigger('click');
+                return;
+            }
+        }
+        else if (null === $wrap) {
             return;
         }
-        else if (38 == e.which) { // up
+
+        if (38 == e.which) { // up
             e.preventDefault();
 
             $wrap.find('.fs-option').removeClass('hl');
@@ -267,12 +256,65 @@
             }
         }
         else if (32 == e.which || 13 == e.which) { // space, enter
+            e.preventDefault();
+
             $wrap.find('.fs-option.hl').click();
         }
         else if (27 == e.which) { // esc
-            $('.fs-dropdown').addClass('hidden');
-            window.fSelect.active = null;
+            closeDropdown($wrap);
         }
     });
+
+    function setIndexes($wrap) {
+        $wrap.find('.fs-option:not(.hidden)').each(function(i, el) {
+            $(el).attr('data-index', i);
+            $wrap.find('.fs-option').removeClass('hl');
+        });
+        $wrap.find('.fs-search input').focus();
+        window.fSelect.idx = -1;
+    }
+
+    function setScroll($wrap) {
+        var $container = $wrap.find('.fs-options');
+        var $selected = $wrap.find('.fs-option.hl');
+
+        var itemMin = $selected.offset().top + $container.scrollTop();
+        var itemMax = itemMin + $selected.outerHeight();
+        var containerMin = $container.offset().top + $container.scrollTop();
+        var containerMax = containerMin + $container.outerHeight();
+
+        if (itemMax > containerMax) { // scroll down
+            var to = $container.scrollTop() + itemMax - containerMax;
+            $container.scrollTop(to);
+        }
+        else if (itemMin < containerMin) { // scroll up
+            var to = $container.scrollTop() - containerMin - itemMin;
+            $container.scrollTop(to);
+        }
+    }
+
+    function openDropdown($wrap) {
+        window.fSelect.active = $wrap;
+        window.fSelect.initial_values = $wrap.find('select').val();
+        $wrap.find('.fs-dropdown').removeClass('hidden');
+        setIndexes($wrap);
+    }
+
+    function closeDropdown($wrap) {
+        if ('undefined' == typeof $wrap && null != window.fSelect.active) {
+            $wrap = window.fSelect.active;
+        }
+        if ('undefined' !== typeof $wrap) {
+            // only trigger if the values have changed
+            var initial_values = window.fSelect.initial_values;
+            var current_values = $wrap.find('select').val();
+            if (JSON.stringify(initial_values) != JSON.stringify(current_values)) {
+                $(document).trigger('fs:changed', $wrap);
+            }
+        }
+
+        $('.fs-dropdown').addClass('hidden');
+        window.fSelect.active = null;
+    }
 
 })(jQuery);
