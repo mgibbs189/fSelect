@@ -76,8 +76,9 @@
 
                         // exclude the first option in multi-select mode
                         if (0 < i || '' != val || ! $this.settings.multiple) {
+                            var disabled = $el.is(':disabled') ? ' disabled' : '';
                             var selected = -1 < $.inArray(val, $this.selected) ? ' selected' : '';
-                            choices += '<div class="fs-option' + selected + '" data-value="' + val + '"><span class="fs-checkbox"><i></i></span><div class="fs-option-label">' + $el.html() + '</div></div>';
+                            choices += '<div class="fs-option' + selected + disabled + '" data-value="' + val + '"><span class="fs-checkbox"><i></i></span><div class="fs-option-label">' + $el.html() + '</div></div>';
                         }
                     }
                 });
@@ -135,7 +136,7 @@
         'idx': -1
     };
 
-    $(document).on('click', '.fs-option', function() {
+    $(document).on('click', '.fs-option:not(.disabled)', function() {
         var $wrap = $(this).closest('.fs-wrap');
         var do_close = false;
 
@@ -266,7 +267,7 @@
     });
 
     function setIndexes($wrap) {
-        $wrap.find('.fs-option:not(.hidden)').each(function(i, el) {
+        $wrap.find('.fs-option:not(.hidden,.disabled)').each(function(i, el) {
             $(el).attr('data-index', i);
             $wrap.find('.fs-option').removeClass('hl');
         });
