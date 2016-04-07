@@ -219,10 +219,16 @@
         var $wrap = window.fSelect.active;
         var $target = $(e.target);
 
-        // if space, toggle the dropdown
+        // toggle the dropdown on space
         if ($target.hasClass('fs-wrap')) {
             if (32 == e.which) {
                 $target.find('.fs-label').trigger('click');
+                return;
+            }
+        }
+        // preserve spaces during search
+        else if (0 < $target.closest('.fs-search').length) {
+            if (32 == e.which) {
                 return;
             }
         }
