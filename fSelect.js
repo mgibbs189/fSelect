@@ -38,6 +38,8 @@
                 this.$select.before('<div class="fs-dropdown hidden"><div class="fs-options"></div></div>');
                 this.$select.addClass('hidden');
                 this.$wrap = this.$select.closest('.fs-wrap');
+                this.$wrap.data('id', window.fSelect.num_items);
+                window.fSelect.num_items++;
                 this.reload();
             },
 
@@ -132,18 +134,42 @@
      * Events
      */
     window.fSelect = {
-        'active': null,
+        'num_items': 0,
+        'active_id': null,
+        'active_el': null,
+        'last_choice': null,
         'idx': -1
     };
 
-    $(document).on('click', '.fs-option:not(.disabled)', function() {
+    $(document).on('click', '.fs-option:not(.disabled)', function(e) {
         var $wrap = $(this).closest('.fs-wrap');
         var do_close = false;
 
         if ($wrap.hasClass('multiple')) {
             var selected = [];
 
-            $(this).toggleClass('selected');
+            // shift + click support
+            if (e.shiftKey && null != window.fSelect.last_choice) {
+                var current_choice = parseInt($(this).attr('data-index'));
+                var do_select = ! $(this).hasClass('selected');
+                var min = Math.min(window.fSelect.last_choice, current_choice);
+                var max = Math.max(window.fSelect.last_choice, current_choice);
+
+                for (i = min; i <= max; i++) {
+                    $wrap.find('.fs-option[data-index='+ i +']')
+                        .not('.hidden, .disabled')
+                        .each(function() {
+                            do_select ?
+                                $(this).addClass('selected') :
+                                $(this).removeClass('selected');
+                        });
+                }
+            }
+            else {
+                window.fSelect.last_choice = parseInt($(this).attr('data-index'));
+                $(this).toggleClass('selected');
+            }
+
             $wrap.find('.fs-option.selected').each(function(i, el) {
                 selected.push($(el).attr('data-value'));
             });
@@ -170,7 +196,8 @@
         }
 
         var $wrap = $(this).closest('.fs-wrap');
-        var keywords = $(this).val();
+        var matchOperators = /[|\\{}()[\]^$+*?.]/g;
+        var keywords = $(this).val().replace(matchOperators, '\\$&');
 
         $wrap.find('.fs-option, .fs-optgroup-label').removeClass('hidden');
 
@@ -198,7 +225,14 @@
         var $wrap = $el.closest('.fs-wrap');
 
         if (0 < $wrap.length) {
-            if ($el.hasClass('fs-label')) {
+
+            // user clicked another fSelect box
+            if ($wrap.data('id') !== window.fSelect.active_id) {
+                closeDropdown();
+            }
+
+            // fSelect box was toggled
+            if ($el.hasClass('fs-label') || $el.hasClass('fs-arrow')) {
                 var is_hidden = $wrap.find('.fs-dropdown').hasClass('hidden');
 
                 if (is_hidden) {
@@ -211,12 +245,12 @@
         }
         // clicked outside, close all fSelect boxes
         else {
-            closeDropdown(/* null */);
+            closeDropdown();
         }
     });
 
     $(document).on('keydown', function(e) {
-        var $wrap = window.fSelect.active;
+        var $wrap = window.fSelect.active_el;
         var $target = $(e.target);
 
         // toggle the dropdown on space
@@ -301,15 +335,16 @@
     }
 
     function openDropdown($wrap) {
-        window.fSelect.active = $wrap;
+        window.fSelect.active_el = $wrap;
+        window.fSelect.active_id = $wrap.data('id');
         window.fSelect.initial_values = $wrap.find('select').val();
         $wrap.find('.fs-dropdown').removeClass('hidden');
         setIndexes($wrap);
     }
 
     function closeDropdown($wrap) {
-        if ('undefined' == typeof $wrap && null != window.fSelect.active) {
-            $wrap = window.fSelect.active;
+        if ('undefined' == typeof $wrap && null != window.fSelect.active_el) {
+            $wrap = window.fSelect.active_el;
         }
         if ('undefined' !== typeof $wrap) {
             // only trigger if the values have changed
@@ -321,7 +356,9 @@
         }
 
         $('.fs-dropdown').addClass('hidden');
-        window.fSelect.active = null;
+        window.fSelect.active_el = null;
+        window.fSelect.active_id = null;
+        window.fSelect.last_choice = null;
     }
 
 })(jQuery);
