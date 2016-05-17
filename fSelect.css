@@ -127,14 +127,6 @@
     background-position: center;
 }
 
-.fs-wrap .fs-option:hover {
-    background-color: #f5f5f5;
-}
-
-.fs-wrap .fs-option.disabled:hover {
-    background-color: none;
-}
-
 .fs-optgroup-label {
     font-weight: bold;
     text-align: center;
