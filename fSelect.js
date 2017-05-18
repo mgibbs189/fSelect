@@ -112,6 +112,7 @@
                 }
 
                 this.$wrap.find('.fs-label').html(labelText);
+                this.$wrap.toggleClass('fs-default', labelText === settings.placeholder);
                 this.$select.change();
             }
         }
