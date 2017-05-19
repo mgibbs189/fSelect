@@ -351,6 +351,7 @@
         window.fSelect.active_id = $wrap.data('id');
         window.fSelect.initial_values = $wrap.find('select').val();
         $wrap.find('.fs-dropdown').removeClass('hidden');
+        $wrap.addClass('fs-open');
         setIndexes($wrap);
     }
 
@@ -367,6 +368,7 @@
             }
         }
 
+        $('.fs-wrap').removeClass('fs-open');
         $('.fs-dropdown').addClass('hidden');
         window.fSelect.active_el = null;
         window.fSelect.active_id = null;
