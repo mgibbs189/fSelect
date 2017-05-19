@@ -70,11 +70,9 @@
                     var $el = $(el);
 
                     if ('optgroup' == $el.prop('nodeName').toLowerCase()) {
-                        //choices += '<div class="fs-optgroup">';
                         choices += '<div class="fs-optgroup-label" data-group="' + $this.optgroup + '">' + $el.prop('label') + '</div>';
                         choices += $this.buildOptions($el);
                         $this.optgroup++;
-                        //choices += '</div>';
                     }
                     else {
                         var val = $el.prop('value');
