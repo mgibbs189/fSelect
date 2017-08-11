@@ -155,7 +155,7 @@
             // shift + click support
             if (e.shiftKey && null != window.fSelect.last_choice) {
                 var current_choice = parseInt($(this).attr('data-index'));
-                var do_select = ! $(this).hasClass('selected');
+                var addOrRemove = ! $(this).hasClass('selected');
                 var min = Math.min(window.fSelect.last_choice, current_choice);
                 var max = Math.max(window.fSelect.last_choice, current_choice);
 
@@ -163,9 +163,7 @@
                     $wrap.find('.fs-option[data-index='+ i +']')
                         .not('.hidden, .disabled')
                         .each(function() {
-                            do_select ?
-                                $(this).addClass('selected') :
-                                $(this).removeClass('selected');
+                            $(this).toggleClass('selected', addOrRemove);
                         });
                 }
             }
@@ -187,6 +185,9 @@
 
         $wrap.find('select').val(selected);
         $wrap.find('select').fSelect('reloadDropdownLabel');
+
+        // fire an event
+        $(document).trigger('fs:changed', $wrap);
 
         if (do_close) {
             closeDropdown($wrap);
@@ -364,7 +365,7 @@
             var initial_values = window.fSelect.initial_values;
             var current_values = $wrap.find('select').val();
             if (JSON.stringify(initial_values) != JSON.stringify(current_values)) {
-                $(document).trigger('fs:changed', $wrap);
+                $(document).trigger('fs:closed', $wrap);
             }
         }
 
