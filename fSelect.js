@@ -11,7 +11,8 @@
                 numDisplayed: 3,
                 overflowText: '{n} selected',
                 searchText: 'Search',
-                showSearch: true
+                showSearch: true,
+                optionFormatter: false
             }, options);
         }
 
@@ -82,7 +83,13 @@
                             var disabled = $el.is(':disabled') ? ' disabled' : '';
                             var selected = -1 < $.inArray(val, $this.selected) ? ' selected' : '';
                             var group = ' g' + $this.optgroup;
-                            choices += '<div class="fs-option' + selected + disabled + group + '" data-value="' + val + '" data-index="' + $this.idx + '"><span class="fs-checkbox"><i></i></span><div class="fs-option-label">' + $el.html() + '</div></div>';
+                            var row = '<div class="fs-option' + selected + disabled + group + '" data-value="' + val + '" data-index="' + $this.idx + '"><span class="fs-checkbox"><i></i></span><div class="fs-option-label">' + $el.html() + '</div></div>';
+
+                            if (function === typeof $this.settings.optionFormatter) {
+                                row = $this.settings.optionFormatter(row);
+                            }
+
+                            choices += row;
                             $this.idx++;
                         }
                     }
