@@ -233,7 +233,7 @@
         setIndexes($wrap);
     });
 
-    $(document).on('click', function(e) {
+    $(document).on('click touchstart', function(e) {
         var $el = $(e.target);
         var $wrap = $el.closest('.fs-wrap');
 
