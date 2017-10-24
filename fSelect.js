@@ -2,7 +2,7 @@
 
     $.fn.fSelect = function(options) {
 
-        if (typeof options == 'string' ) {
+        if ('string' === typeof options) {
             var settings = options;
         }
         else {
@@ -85,7 +85,7 @@
                             var group = ' g' + $this.optgroup;
                             var row = '<div class="fs-option' + selected + disabled + group + '" data-value="' + val + '" data-index="' + $this.idx + '"><span class="fs-checkbox"><i></i></span><div class="fs-option-label">' + $el.html() + '</div></div>';
 
-                            if (function === typeof $this.settings.optionFormatter) {
+                            if ('function' === typeof $this.settings.optionFormatter) {
                                 row = $this.settings.optionFormatter(row);
                             }
 
@@ -134,7 +134,7 @@
                 $(this).data('fSelect', data);
             }
 
-            if (typeof settings == 'string') {
+            if ('string' === typeof settings) {
                 data[settings]();
             }
         });
