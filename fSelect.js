@@ -103,7 +103,7 @@
                 var labelText = [];
 
                 this.$wrap.find('.fs-option.selected').each(function(i, el) {
-                    labelText.push($(el).find('.fs-option-label').text());
+                    labelText.push($(el).find('.fs-option-label').html());
                 });
 
                 if (labelText.length < 1) {
