@@ -11,6 +11,7 @@
                 numDisplayed: 3,
                 overflowText: '{n} selected',
                 searchText: 'Search',
+                noResultsText: 'No results found',
                 showSearch: true,
                 optionFormatter: false
             }, options);
@@ -48,6 +49,10 @@
                 if (this.settings.showSearch) {
                     var search = '<div class="fs-search"><input type="search" placeholder="' + this.settings.searchText + '" /></div>';
                     this.$wrap.find('.fs-dropdown').prepend(search);
+                }
+                if ('' !== this.settings.noResultsText) {
+                    var no_results_text = '<div class="fs-no-results hidden">' + this.settings.noResultsText + '</div>';
+                    this.$wrap.find('.fs-options').before(no_results_text);
                 }
                 this.idx = 0;
                 this.optgroup = 0;
@@ -156,6 +161,11 @@
         var $wrap = $(this).closest('.fs-wrap');
         var do_close = false;
 
+        // prevent selections
+        if ($wrap.hasClass('fs-disabled')) {
+            return;
+        }
+
         if ($wrap.hasClass('multiple')) {
             var selected = [];
 
@@ -231,6 +241,7 @@
         }
 
         setIndexes($wrap);
+        checkNoResults($wrap);
     });
 
     $(document).on('click', function(e) {
@@ -268,7 +279,8 @@
 
         // toggle the dropdown on space
         if ($target.hasClass('fs-wrap')) {
-            if (32 == e.which) {
+            if (32 == e.which || 13 == e.which) {
+                e.preventDefault();
                 $target.find('.fs-label').trigger('click');
                 return;
             }
@@ -329,6 +341,11 @@
         }
     });
 
+    function checkNoResults($wrap) {
+        var addOrRemove = $wrap.find('.fs-option:not(.hidden)').length > 0;
+        $wrap.find('.fs-no-results').toggleClass('hidden', addOrRemove);
+    }
+
     function setIndexes($wrap) {
         $wrap.find('.fs-option.hl').removeClass('hl');
         $wrap.find('.fs-search input').focus();
@@ -361,6 +378,7 @@
         $wrap.find('.fs-dropdown').removeClass('hidden');
         $wrap.addClass('fs-open');
         setIndexes($wrap);
+        checkNoResults($wrap);
     }
 
     function closeDropdown($wrap) {
