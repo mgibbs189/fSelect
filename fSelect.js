@@ -1,6 +1,6 @@
 (function($) {
 
-    String.prototype.unaccented = function(){
+    String.prototype.unaccented = function() {
         var accent = [
             /[\300-\306]/g, /[\340-\346]/g, // A, a
             /[\310-\313]/g, /[\350-\353]/g, // E, e
@@ -13,7 +13,7 @@
         var noaccent = ['A','a','E','e','I','i','O','o','U','u','N','n','C','c'];
 
         var str = this;
-        for(var i = 0; i < accent.length; i++){
+        for (var i = 0; i < accent.length; i++) {
             str = str.replace(accent[i], noaccent[i]);
         }
 
@@ -246,7 +246,7 @@
         if ('' != keywords) {
             $wrap.find('.fs-option').each(function() {
                 var regex = new RegExp(keywords.unaccented(), 'gi');
-                var formatedValue = $(this).find('.fs-option-label').text().unaccented()
+                var formatedValue = $(this).find('.fs-option-label').text().unaccented();
 
                 if (null === formatedValue.match(regex)) {
                     $(this).addClass('hidden');
