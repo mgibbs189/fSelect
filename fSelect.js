@@ -102,13 +102,15 @@
                     }
                     else {
                         var val = $el.prop('value');
+                        var classes = $el.attr('class');
+                        classes = ('undefined' !== typeof classes) ? ' ' + classes : '';
 
                         // exclude the first option in multi-select mode
                         if (0 < $this.idx || '' != val || ! $this.settings.multiple) {
                             var disabled = $el.is(':disabled') ? ' disabled' : '';
                             var selected = -1 < $.inArray(val, $this.selected) ? ' selected' : '';
                             var group = ' g' + $this.optgroup;
-                            var row = '<div class="fs-option' + selected + disabled + group + '" data-value="' + val + '" data-index="' + $this.idx + '"><span class="fs-checkbox"><i></i></span><div class="fs-option-label">' + $el.html() + '</div></div>';
+                            var row = '<div class="fs-option' + selected + disabled + group + classes + '" data-value="' + val + '" data-index="' + $this.idx + '"><span class="fs-checkbox"><i></i></span><div class="fs-option-label">' + $el.html() + '</div></div>';
 
                             if ('function' === typeof $this.settings.optionFormatter) {
                                 row = $this.settings.optionFormatter(row);
@@ -397,6 +399,7 @@
         window.fSelect.active_el = $wrap;
         window.fSelect.active_id = $wrap.data('id');
         window.fSelect.initial_values = $wrap.find('select').val();
+        $(document).trigger('fs:opened', $wrap);
         $wrap.find('.fs-dropdown').removeClass('hidden');
         $wrap.addClass('fs-open');
         setIndexes($wrap);
