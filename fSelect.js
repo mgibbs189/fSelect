@@ -35,7 +35,7 @@
                 selectAllText: 'Select all',
                 deselectAllText: 'Deselect all',
                 showSearch: true,
-                showButtons: true,
+                showButtons: false,
                 optionFormatter: false
             }, options);
         }
