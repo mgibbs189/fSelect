@@ -1,7 +1,7 @@
 # fSelect
 A jQuery select box replacement library ([live demo](https://jsfiddle.net/r0pw7g11/3/))
 
-<img src="https://i.imgur.com/sYGI7bO.png" width="208" height="223" />
+<img src="https://i.imgur.com/sYGI7bO.png" width="213" height="277" />
 
 ### Usage
 
