@@ -64,10 +64,43 @@
 
 .fs-option,
 .fs-search,
+.fs-buttons,
 .fs-optgroup-label {
     padding: 6px 8px;
     border-bottom: 1px solid #eee;
     cursor: default;
+}
+
+.fs-buttons {
+    padding: 0;
+    text-align: center;
+}
+
+.fs-buttons > div {
+    display: inline-block;
+    text-align: center;
+    width: 50%;
+    border-right: 1px solid #eee;
+}
+
+.fs-buttons > div:last-child {
+    border-right: none;
+    width: calc(50% - 1px);
+}
+
+.fs-button {
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    display: block;
+    padding: 6px 8px;
+    text-align: center;
+    border: none;
+    background: none;
+    outline: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .fs-option:last-child {

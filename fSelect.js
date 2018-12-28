@@ -32,7 +32,10 @@
                 overflowText: '{n} selected',
                 searchText: 'Search',
                 noResultsText: 'No results found',
+                selectAllText: 'Select all',
+                deselectAllText: 'Deselect all',
                 showSearch: true,
+                showButtons: false,
                 optionFormatter: false
             }, options);
         }
@@ -66,6 +69,10 @@
             },
 
             reload: function() {
+                if (this.settings.showButtons && this.settings.multiple) {
+                    var search = '<div class="fs-buttons"><div><button class="fs-button fs-select-all">' + this.settings.selectAllText + '</button></div><div><button class="fs-button fs-deselect-all">' + this.settings.deselectAllText + '</button></div></div>';
+                    this.$wrap.find('.fs-dropdown').prepend(search);
+                }
                 if (this.settings.showSearch) {
                     var search = '<div class="fs-search"><input type="search" placeholder="' + this.settings.searchText + '" /></div>';
                     this.$wrap.find('.fs-dropdown').prepend(search);
@@ -178,6 +185,36 @@
         'last_choice': null,
         'idx': -1
     };
+    
+    $(document).on('click', '.fs-select-all', function(e) {
+        var $wrap = $(this).closest('.fs-wrap');
+        
+        if ($wrap.find('option:not(:selected)').length == 0) {
+            return false;
+        }
+        
+        $wrap.find('.fs-option').addClass('selected');
+        $wrap.find('option:not(:selected)').prop('selected', true);
+        
+        $wrap.find('select').fSelect('reloadDropdownLabel');
+        
+        $(document).trigger('fs:changed', $wrap);
+    });
+
+    $(document).on('click', '.fs-deselect-all', function(e) {
+        var $wrap = $(this).closest('.fs-wrap');
+        
+        if ($wrap.find('option:selected').length == 0) {
+            return false;
+        }
+        
+        $wrap.find('.fs-option').removeClass('selected');
+        $wrap.find('option:selected').prop('selected', false);
+        
+        $wrap.find('select').fSelect('reloadDropdownLabel');
+        
+        $(document).trigger('fs:changed', $wrap);
+    });
 
     $(document).on('click', '.fs-option:not(.hidden, .disabled)', function(e) {
         var $wrap = $(this).closest('.fs-wrap');
