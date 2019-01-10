@@ -6,13 +6,13 @@ A jQuery select box replacement library ([live demo](https://facetwp.com/wp-cont
 ### Usage
 
 ```javascript
-$('.your-select-box').fSelect();
+$('.your-select').fSelect();
 ```
 
 ### Available options
 
-```javascript
-$('.your-select-box').fSelect({
+```js
+$('.your-select').fSelect({
     placeholder: 'Select some options',
     numDisplayed: 3,
     overflowText: '{n} selected',
@@ -28,6 +28,13 @@ $('.your-select-box').fSelect({
 * **noResultsText** (str) - the text to show if no choices exist (or an empty string)
 * **searchText** (str) - the search box placeholder text
 * **showSearch** (bool) - show the search box?
+
+### Methods
+
+```js
+$('.your-select').fSelect('reload');
+$('.your-select').fSelect('destroy');
+```
 
 ### Single vs. multi-select
 
