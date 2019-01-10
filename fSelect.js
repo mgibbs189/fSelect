@@ -53,33 +53,43 @@
          */
         fSelect.prototype = {
             create: function() {
-                this.settings.multiple = this.$select.is('[multiple]');
-                var multiple = this.settings.multiple ? ' multiple' : '';
-                this.$select.wrap('<div class="fs-wrap' + multiple + '" tabindex="0" />');
-                this.$select.before('<div class="fs-label-wrap"><div class="fs-label">' + this.settings.placeholder + '</div><span class="fs-arrow"></span></div>');
-                this.$select.before('<div class="fs-dropdown hidden"><div class="fs-options"></div></div>');
-                this.$select.addClass('hidden');
-                this.$wrap = this.$select.closest('.fs-wrap');
-                this.$wrap.data('id', window.fSelect.num_items);
-                window.fSelect.num_items++;
-                this.reload();
-            },
-
-            reload: function() {
-                if (this.settings.showSearch) {
-                    var search = '<div class="fs-search"><input type="search" placeholder="' + this.settings.searchText + '" /></div>';
-                    this.$wrap.find('.fs-dropdown').prepend(search);
-                }
-                if ('' !== this.settings.noResultsText) {
-                    var no_results_text = '<div class="fs-no-results hidden">' + this.settings.noResultsText + '</div>';
-                    this.$wrap.find('.fs-options').before(no_results_text);
-                }
                 this.idx = 0;
                 this.optgroup = 0;
                 this.selected = [].concat(this.$select.val()); // force an array
-                var choices = this.buildOptions(this.$select);
-                this.$wrap.find('.fs-options').html(choices);
+                this.settings.multiple = this.$select.is('[multiple]');
+
+                var search_html = '';
+                var no_results_html = '';
+                var choices_html = this.buildOptions(this.$select);
+
+                if (this.settings.showSearch) {
+                    search_html = '<div class="fs-search"><input type="search" placeholder="' + this.settings.searchText + '" /></div>';
+                }
+                if ('' !== this.settings.noResultsText) {
+                    no_results_html = '<div class="fs-no-results hidden">' + this.settings.noResultsText + '</div>';
+                }
+
+                var html = '<div class="fs-label-wrap"><div class="fs-label"></div><span class="fs-arrow"></span></div>';
+                html += '<div class="fs-dropdown hidden">{search}{no-results}<div class="fs-options">' + choices_html + '</div></div>';
+                html = html.replace('{search}', search_html);
+                html = html.replace('{no-results}', no_results_html);
+
+                this.$select.wrap('<div class="fs-wrap' + (this.settings.multiple ? ' multiple' : '') + '" tabindex="0" />');
+                this.$select.addClass('hidden');
+                this.$select.before(html);
+                this.$wrap = this.$select.closest('.fs-wrap');
+                this.$wrap.data('id', window.fSelect.num_items);
+                window.fSelect.num_items++;
+
+                this.idx = 0;
+                this.optgroup = 0;
+                this.selected = [].concat(this.$select.val()); // force an array
                 this.reloadDropdownLabel();
+            },
+
+            reload: function() {
+                this.destroy();
+                this.create();
             },
 
             destroy: function() {
