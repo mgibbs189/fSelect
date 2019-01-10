@@ -81,9 +81,6 @@
                 this.$wrap.data('id', window.fSelect.num_items);
                 window.fSelect.num_items++;
 
-                this.idx = 0;
-                this.optgroup = 0;
-                this.selected = [].concat(this.$select.val()); // force an array
                 this.reloadDropdownLabel();
             },
 
