@@ -1,3 +1,5 @@
+/* fSelect 1.0 - https://github.com/mgibbs189/fselect */
+
 (function($) {
 
     String.prototype.unaccented = function() {
