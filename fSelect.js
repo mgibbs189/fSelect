@@ -1,4 +1,4 @@
-/* fSelect 1.0.1 - https://github.com/mgibbs189/fselect */
+/* fSelect 1.0.2 - https://github.com/mgibbs189/fselect */
 
 (function($) {
 
@@ -35,7 +35,9 @@
                 searchText: 'Search',
                 noResultsText: 'No results found',
                 showSearch: true,
-                optionFormatter: false
+                optionFormatter: false,
+				showSelectAll: true,
+                multiSelect: false,
             }, options);
         }
 
@@ -59,6 +61,7 @@
                 this.optgroup = 0;
                 this.selected = [].concat(this.$select.val()); // force an array
                 this.settings.multiple = this.$select.is('[multiple]');
+                if (this.settings.multiSelect) this.settings.multiple = true; // allows it to be set in options at initialization
 
                 var search_html = '';
                 var no_results_html = '';
@@ -101,6 +104,11 @@
                 var $this = this;
 
                 var choices = '';
+                
+				if (this.settings.showSelectAll && this.settings.multiple) { // selectall shows only w/ multi-select
+					choices += '<div class="fs-selectall"><span class="fs-checkbox"><i></i></span><div class="fs-selectall-label">Select All</div></div>';
+				}
+				
                 $element.children().each(function(i, el) {
                     var $el = $(el);
 
@@ -187,7 +195,7 @@
         'idx': -1
     };
 
-    $(document).on('click', '.fs-option:not(.hidden, .disabled)', function(e) {
+    $(document).on('click', '.fs-option:not(.hidden, .disabled), .fs-selectall:not(.hidden, .disabled)', function(e) {
         var $wrap = $(this).closest('.fs-wrap');
         var $select = $wrap.find('select');
         var do_close = false;
@@ -197,7 +205,21 @@
             return;
         }
 
-        if ($wrap.hasClass('multiple')) {
+		var is_selectall = $(this).hasClass('fs-selectall'); // is clicked element SelectAll?
+		if (is_selectall) {
+            var selected = [];
+			var addOrRemove = ! $(this).hasClass('selected');
+			$wrap.find('.fs-option')
+				.not('.hidden, .disabled') // this allows the Select All to only affect visible items (such as ones that are matching the search); others are UNAFFECTED
+				.each(function() {
+					$(this).toggleClass('selected', addOrRemove);
+				});
+            $wrap.find('.fs-option.selected').each(function(i, el) { // pushes in all selected items, even those that are hidden (so they're still included, as desired)
+                selected.push($(el).attr('data-value'));
+            });
+			$(this).toggleClass('selected');
+		}
+        else if ($wrap.hasClass('multiple')) {
             var selected = [];
 
             // shift + click support
@@ -243,7 +265,7 @@
         }
     });
 
-    $(document).on('keyup', '.fs-search input', function(e) {
+    $(document).on('keyup search', '.fs-search input', function(e) { // HTML5 'x to clear' requires 'search' event listener to update immediately!
         if (40 == e.which) { // down
             $(this).blur();
             return;
