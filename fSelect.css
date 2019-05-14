@@ -67,6 +67,7 @@
     width: 100%;
 }
 
+.fs-selectall,
 .fs-option,
 .fs-search,
 .fs-optgroup-label {
@@ -87,6 +88,7 @@
     padding: 6px 8px;
 }
 
+.fs-selectall,
 .fs-option {
     cursor: pointer;
     word-break: break-all;
@@ -101,6 +103,7 @@
     background-color: #f5f5f5;
 }
 
+.fs-wrap.multiple .fs-selectall,
 .fs-wrap.multiple .fs-option {
     position: relative;
     padding-left: 30px;
@@ -115,6 +118,7 @@
     bottom: 0;
 }
 
+.fs-wrap.multiple .fs-selectall .fs-checkbox i,
 .fs-wrap.multiple .fs-option .fs-checkbox i {
     position: absolute;
     margin: auto;
@@ -129,6 +133,7 @@
     background-color: #fff;
 }
 
+.fs-wrap.multiple .fs-selectall.selected .fs-checkbox i,
 .fs-wrap.multiple .fs-option.selected .fs-checkbox i {
     background-color: rgb(17, 169, 17);
     border-color: transparent;
