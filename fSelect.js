@@ -65,7 +65,7 @@
                 var choices_html = this.buildOptions(this.$select);
 
                 if (this.settings.showSearch) {
-                    search_html = '<div class="fs-search"><input type="search" placeholder="' + this.settings.searchText + '" /></div>';
+                    search_html = '<div class="fs-search"><input type="text" placeholder="' + this.settings.searchText + '" /></div>';
                 }
                 if ('' !== this.settings.noResultsText) {
                     no_results_html = '<div class="fs-no-results hidden">' + this.settings.noResultsText + '</div>';
