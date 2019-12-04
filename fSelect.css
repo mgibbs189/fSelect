@@ -140,6 +140,7 @@
 .fs-optgroup-label {
     font-weight: bold;
     text-align: center;
+    background-color: #f8f8f8;
 }
 
 .hidden {
