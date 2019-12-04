@@ -188,6 +188,7 @@
     };
 
     $(document).on('click', '.fs-option:not(.hidden, .disabled)', function(e) {
+        e.stopImmediatePropagation();
         var $wrap = $(this).closest('.fs-wrap');
         var $select = $wrap.find('select');
         var do_close = false;
@@ -279,6 +280,7 @@
     });
 
     $(document).on('click', function(e) {
+        e.stopImmediatePropagation();
         var $el = $(e.target);
         var $wrap = $el.closest('.fs-wrap');
 
