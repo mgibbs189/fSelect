@@ -18,7 +18,9 @@ $('.your-select').fSelect({
     overflowText: '{n} selected',
     noResultsText: 'No results found',
     searchText: 'Search',
-    showSearch: true
+    showSearch: true,
+    showSelectAll: true,
+    multiSelect: false
 });
 ```
 
@@ -28,6 +30,8 @@ $('.your-select').fSelect({
 * **noResultsText** (str) - the text to show if no choices exist (or an empty string)
 * **searchText** (str) - the search box placeholder text
 * **showSearch** (bool) - show the search box?
+* **showSelectAll** (bool) - show select-all option? (only with multiSelect)
+* **multiSelect** (bool) - initialize with multi-select enabled (works the same as select attribute)
 
 ### Methods
 
@@ -38,7 +42,7 @@ $('.your-select').fSelect('destroy');
 
 ### Single vs. multi-select
 
-Add the `multiple` attribute to your `<select>` to enable multi-select:
+Add the `multiple` attribute to your `<select>` to enable multi-select (optional; can set in fSelect options OR in select tag):
 
 ```html
 <select class="your-select-box" multiple="multiple">
